@@ -15,9 +15,9 @@ _DEFAULTS={
     'noisy': c.NOISY,
     'limit': c.LIMIT,
     'check_ext': c.CHECK_EXT,
-    'tile_config': c.TILE_CONFIG
+    'export_config': c.EXPORT_CONFIG
 }
-
+_RASIE='__RAISE'
 
 #
 # LOAD CONFIG
@@ -28,10 +28,13 @@ if os.path.exists(c.DL_EXPORTER_CONFIG_PATH):
     CONFIG.update(yaml.safe_load(open(c.DL_EXPORTER_CONFIG_PATH)))
 
 
-def get(key):
+def get(key,default=_RASIE):
     """ get value
     """
-    return CONFIG[key]
+    if default==_RASIE:
+        return CONFIG[key]
+    else:
+        return CONFIG.get(key,default)
 
 
 def generate(
@@ -39,7 +42,7 @@ def generate(
         noisy=c.NOISY,
         limit=c.LIMIT,
         check_ext=c.CHECK_EXT,
-        tile_config=c.TILE_CONFIG,
+        export_config=c.EXPORT_CONFIG,
         force=False):
     """ generate config file
     """
@@ -48,7 +51,7 @@ def generate(
         'noisy': _truthy(noisy),
         'limit': limit,
         'check_ext': _truthy(check_ext),
-        'tile_config': tile_config,
+        'export_config': export_config,
     }
     if not force and os.path.exists(c.DL_EXPORTER_CONFIG_PATH):
         _log(c.DL_EXPORTER_CONFIG_EXISTS,True,level="ERROR")
