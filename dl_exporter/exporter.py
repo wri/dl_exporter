@@ -95,7 +95,10 @@ def _load_setup(geometry,config,check_ext,noisy):
     if noisy:
         _section_header(f'GEOMETRY ({geometry})')
         geometry=_load_geojson(geometry,check_ext=check_ext)
-        pprint(geometry)
+        print('nb_features:',len(geometry['features']))
+        print('properties:')
+        print()
+        pprint(geometry['features'][0].get('properties'))
         _section_header(f'EXPORT_CONFIG ({config or "default"})')
         config=_load_config(config,check_ext=check_ext)
         pprint(config)
