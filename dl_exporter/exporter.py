@@ -38,19 +38,21 @@ def run(geometry,config=None,dev=IS_DEV,noisy=NOISY,limit=LIMIT,check_ext=True):
         _section_header('EXPORT START',first=True)
         print('geometry:',geometry_filename)
         print('config:',config or 'default')
-        print('timestamp:',timer.stop())
+        print('timestamp:',timer.start())
     geometry, config=_load_setup(geometry_filename,config,check_ext,noisy)
     tiles=DLTile.from_shape(geometry,**config['tiling'])
     if noisy:
         _section_header('TILES')
         print('nb_tiles:',len(tiles))
-        print('first_tile:')
         print('timestamp:',timer.now())
+        print('first_tile:')
+        print()
         pprint(tiles[0])
+        print()
     if limit:
         tiles=tiles[:limit]
         if noisy:
-            print("LIMIT:",len(tiles))
+            print("limit:",len(tiles))
     def _export(tile):
         return _export_tile(tile,config['search'],config['output'],dev,noisy)
     out=mproc.map_with_threadpool(
@@ -62,14 +64,15 @@ def run(geometry,config=None,dev=IS_DEV,noisy=NOISY,limit=LIMIT,check_ext=True):
         _section_header('EXPORT COMPLETE')
         print('nb_transfered:',len(out))
         print('timestamp:',timer.now())
-    output_file=_output_filename(geometry_filename,config)
-    if output_file:
-        utils.save_pickle(out,output_file)
-        if noisy:
-            _section_header('OUTPUT SAVED')
-            print('path:',output_file)
-            print('timestamp:',timer.now())    
-            print(out)
+    if out:
+        output_file=_output_filename(geometry_filename,config)
+        if output_file:
+            utils.save_pickle(out,output_file)
+            if noisy:
+                _section_header('OUTPUT SAVED')
+                print('path:',output_file)
+                print('timestamp:',timer.now())    
+                print(out)
     timer.stop()
     if noisy:
         _section_header('COMPLETE')
@@ -121,11 +124,10 @@ def _export_tile(tile,search_params,output_params,dev,noisy):
     scs,_=dl.scenes.search(tile,**search_params)
     if scs:
         filename, bucket, folder=_export_args(tile.key,output_params)
-        print(filename,bucket,folder)
-        if not dev:
-            im=scs.mosaic(output_params['bands'],tile)
-            if noisy:
-                print(im.nbytes,im.shape,im.shape[0]*im.shape[1]*im.shape[2])        
+        if dev:
+            return '/'.join([bucket, folder, filename])
+        else:
+            im=scs.mosaic(output_params['bands'],tile)       
             tmp_name=f'{secrets.token_urlsafe(16)}.tif'
             dest=gcs_utils.image_to_gcs(
                 im,
@@ -137,10 +139,6 @@ def _export_tile(tile,search_params,output_params,dev,noisy):
                 return_path=True)
             os.remove(tmp_name)
             return dest
-        else:
-            if noisy:
-                print('dev run')
-                pprint(output_params)
 
 
 def _export_args(tile_key,config):
