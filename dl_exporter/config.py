@@ -14,7 +14,8 @@ _DEFAULTS={
     'is_dev': c.IS_DEV,
     'noisy': c.NOISY,
     'limit': c.LIMIT,
-    'check_ext': c.CHECK_EXT
+    'check_ext': c.CHECK_EXT,
+    'tile_config': c.TILE_CONFIG
 }
 
 
@@ -37,6 +38,7 @@ def generate(
         noisy=c.NOISY,
         limit=c.LIMIT,
         check_ext=c.CHECK_EXT,
+        tile_config=c.TILE_CONFIG,
         force=False):
     """ generate config file
     """
@@ -44,7 +46,9 @@ def generate(
         'is_dev': _truthy(is_dev),
         'noisy': _truthy(noisy),
         'limit': limit,
-        'check_ext': _truthy(check_ext) }
+        'check_ext': _truthy(check_ext),
+        'tile_config': tile_config,
+    }
     if not force and os.path.exists(c.DL_EXPORTER_CONFIG_PATH):
         _log(c.DL_EXPORTER_CONFIG_EXISTS,True,level="ERROR")
     else:

@@ -7,6 +7,13 @@ CHECK_EXT=True
 
 
 #
+# DEFAULT TILE CONFIG
+#
+TILE_CONFIG={
+    'size': 2**10,
+    'pad': 0
+}
+#
 # DL_JOBS CONFIG:
 #
 DL_EXPORTER_CONFIG_PATH='dl_exporter.config.yaml'

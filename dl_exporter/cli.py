@@ -37,7 +37,8 @@ def cli(ctx):
 @click.command(
     help='run exoprt: `$dl_exporter run <export-job-config>`',
     context_settings=ARG_KWARGS_SETTINGS ) 
-@click.argument('job',type=str)
+@click.argument('geometry',type=str)
+@click.argument('config',type=str,required=False)
 @click.option(
     '--dev',
     help=DEV_HELP,
@@ -59,9 +60,10 @@ def cli(ctx):
     default=CHECK_EXT,
     type=bool)
 @click.pass_context
-def run(ctx,job,dev,noisy,limit,check_ext):
+def run(ctx,geometry,config,dev,noisy,limit,check_ext):
     exporter.run(
-        job=job,
+        geometry=geometry,
+        config=config,
         dev=dev,
         noisy=noisy,
         limit=limit,
@@ -73,16 +75,18 @@ def run(ctx,job,dev,noisy,limit,check_ext):
 @click.command(
     help='print job: `$dl_exporter echo <export-job-config>`',
     context_settings=ARG_KWARGS_SETTINGS ) 
-@click.argument('job',type=str)
+@click.argument('geometry',type=str)
+@click.argument('config',type=str,required=False)
 @click.option(
     '--check_ext',
     help=CHECK_EXT_HELP,
     default=CHECK_EXT,
     type=bool)
 @click.pass_context
-def echo(ctx,job,check_ext):
+def echo(ctx,geometry,config,check_ext):
     exporter.echo(
-        job=job,
+        geometry=geometry,
+        config=config,
         check_ext=check_ext)
 
 
