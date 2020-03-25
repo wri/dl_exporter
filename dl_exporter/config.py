@@ -23,6 +23,7 @@ _DEFAULTS={
 # LOAD CONFIG
 #
 CONFIG=deepcopy(_DEFAULTS)
+print(c.DL_EXPORTER_CONFIG_PATH)
 if os.path.exists(c.DL_EXPORTER_CONFIG_PATH):
     CONFIG.update(yaml.safe_load(open(c.DL_EXPORTER_CONFIG_PATH)))
 
