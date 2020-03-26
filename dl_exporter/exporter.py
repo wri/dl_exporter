@@ -141,7 +141,7 @@ def _export_tile(tile,search_params,output_params,dev,noisy):
             dest=gcs_utils.image_to_gcs(
                 im,
                 dest=filename,
-                profile=_get_profile(im,tile),
+                profile=utils.image_profile(im,tile),
                 tmp_name=tmp_name,
                 bucket=bucket,
                 folder=folder,
@@ -160,23 +160,6 @@ def _export_args(tile_key,config):
     if suffix: filename=f'{filename}_{suffix}'
     filename=f'{filename}.tif'
     return filename, bucket, folder
-
-
-
-def _affine(gdal_trans):
-    c, a, b, f, d, e=gdal_trans
-    return Affine(a, b, c, d, e, f)
-
-
-def _get_profile(im,aoi):
-    return minigeo.build_profile(
-        crs=aoi.crs, 
-        transform=_affine(aoi.geotrans), 
-        size=aoi.tilesize, 
-        count=im.shape[0], 
-        nodata=None, 
-        dtype='uint8', 
-        compress='lzw')
 
 
 def _output_filename(geometry_filename,config):

@@ -5,7 +5,7 @@ from pprint import pprint
 #
 TS_FMT="%b %d %Y %H:%M:%S"
 INLINE_TYPES=(str,float,int,list)
-
+LINE_LENGTH=75
 
 
 #
@@ -20,18 +20,26 @@ def section(noisy,header,**data):
             _section_data(k,v)
 
 
+def vspace(n=1):
+    print("\n"*n)
+
+
+def line(char='-',length=LINE_LENGTH):
+    print(char*length)
+
+
 #
 # INTERNAL
 #
 def _section_header(name,first=False):
     if first:
-        print('\n'*1)
+        vspace()
     else:
-        print('\n'*4)
-    print('-'*50)
+        vspace(4)
+    line()
     print(f'{name.upper()}:')
-    print('-'*50)
-    print()
+    line()
+    vspace()
 
 
 def _section_data(key,value):
@@ -40,9 +48,9 @@ def _section_data(key,value):
             print(f'{key}:',value)
         else:
             print(f'{key}:')
-            print()
+            vspace()
             pprint(value)
-            print()
+            vspace()
 
 
 def _timestamp():

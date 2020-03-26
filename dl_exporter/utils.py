@@ -67,19 +67,18 @@ class Timer(object):
 
 
 #
-# OUTPUT
+# GEO
 #
-def vspace(n=2):
-    print("\n"*n)
+def image_profile(im,aoi):
+    return minigeo.build_profile(
+        crs=aoi.crs, 
+        transform=minigeo.gdaltrans_to_affine(aoi.geotrans), 
+        size=aoi.tilesize, 
+        count=im.shape[0], 
+        nodata=None, 
+        dtype='uint8', 
+        compress='lzw')
 
-
-def line(char='-',length=100):
-    print(char*length)
-
-
-def log(msg,noisy,level='INFO'):
-    if noisy:
-        print("[{}] DL_JOBS: {}".format(level,msg))
 
 
 
