@@ -17,7 +17,7 @@ _DEFAULTS={
     'check_ext': c.CHECK_EXT,
     'export_config': c.EXPORT_CONFIG
 }
-_RASIE='__RAISE'
+_RASIE='_RAISE'
 
 #
 # LOAD CONFIG
@@ -51,7 +51,7 @@ def generate(
         'noisy': _truthy(noisy),
         'limit': limit,
         'check_ext': _truthy(check_ext),
-        'export_config': export_config,
+        'export_config': export_config
     }
     if not force and os.path.exists(c.DL_EXPORTER_CONFIG_PATH):
         _log(c.DL_EXPORTER_CONFIG_EXISTS,True,level="ERROR")

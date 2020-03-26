@@ -20,6 +20,16 @@ def section(noisy,header,**data):
             _section_data(k,v)
 
 
+def csv_header(filename,*columns):
+    print(columns)
+    pass
+
+
+def csv_row(filename,*values):
+    print(values)
+    pass
+
+
 def vspace(n=1):
     print("\n"*n)
 
@@ -35,7 +45,7 @@ def _section_header(name,first=False):
     if first:
         vspace()
     else:
-        vspace(4)
+        vspace(3)
     line()
     print(f'{name.upper()}:')
     line()

@@ -4,14 +4,14 @@ IS_DEV=True
 NOISY=True
 LIMIT=None
 CHECK_EXT=True
-
-
 #
 # DEFAULT EXPORT CONFIG
 #
 EXPORT_CONFIG={
     'output_file': True,
     'output_dir': 'out',
+    'csv_file': True,
+    'csv_dir': 'log',
     'max_processes': 5,
     'tiling': {
         'tilesize': 2**10,
