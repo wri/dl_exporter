@@ -16,6 +16,7 @@ import minigeo
 
 import dl_exporter.config as c
 import dl_exporter.utils as utils
+import dl_exporter.printer as printer
 
 
 #
@@ -31,28 +32,41 @@ EXPORT_CONFIG=c.get('export_config')
 # MAIN
 #
 def run(geometry,config=None,dev=IS_DEV,noisy=NOISY,limit=LIMIT,check_ext=True):
+    # setup
     geometry_filename=geometry
     timer=utils.Timer()
     timer.start()
-    if noisy:
-        _section_header('EXPORT START',first=True)
-        print('geometry:',geometry_filename)
-        print('config:',config or 'default')
-        print('timestamp:',timer.start())
-    geometry, config=_load_setup(geometry_filename,config,check_ext,noisy)
+    printer.section(
+        noisy,
+        'export start',
+        first=True,
+        geometry=geometry_filename,
+        config=config or 'default')
+    # run data
+    geometry=_load_geojson(geometry_filename,check_ext=check_ext)
+    config=_load_config(config,check_ext=check_ext)
+    printer.section(
+            noisy,
+            'config',
+            export_config=config)
+    printer.section(
+            noisy,
+            'geometry',
+            geometry=geometry_filename,
+            nb_features=len(geometry['features']),
+            properties=geometry.get('properties'),
+            feat_properties=geometry['features'][0].get('properties'))
+    # dl-tiles
     tiles=DLTile.from_shape(geometry,**config['tiling'])
-    if noisy:
-        _section_header('TILES')
-        print('nb_tiles:',len(tiles))
-        print('timestamp:',timer.now())
-        print('first_tile:')
-        print()
-        pprint(tiles[0])
-        print()
+    printer.section(
+        noisy,
+        'tiles',
+        nb_tiles=len(tiles),
+        first_tile=tiles[0],
+        limit=limit)
     if limit:
         tiles=tiles[:limit]
-        if noisy:
-            print("limit:",len(tiles))
+    # export
     def _export(tile):
         return _export_tile(tile,config['search'],config['output'],dev,noisy)
     out=mproc.map_with_threadpool(
@@ -60,25 +74,26 @@ def run(geometry,config=None,dev=IS_DEV,noisy=NOISY,limit=LIMIT,check_ext=True):
         tiles,
         max_processes=config.get('max_processes',8))
     out=[o for o in out if o]
-    if noisy:
-        _section_header('EXPORT COMPLETE')
-        print('nb_transfered:',len(out))
-        print('timestamp:',timer.now())
+    printer.section(
+        noisy,        
+        'export complete',
+        nb_transfered=len(out))
+    # close
     if out:
         output_file=_output_filename(geometry_filename,config)
         if output_file:
             utils.save_pickle(out,output_file)
-            if noisy:
-                _section_header('OUTPUT SAVED')
-                print('path:',output_file)
-                print('timestamp:',timer.now())    
-                print(out)
+            printer.section(
+                noisy,
+                'ouput saved',
+                path=output_file,
+                output=out)
     timer.stop()
-    if noisy:
-        _section_header('COMPLETE')
-        print('duration:',timer.duration())
-        print('timestamp:',timer.stop())
-        print('\n'*4)
+    printer.section(
+        noisy,
+        'complete',
+        duration=timer.duration())
+
 
 
 def echo(geometry,config=None,check_ext=True):
@@ -91,19 +106,8 @@ def echo(geometry,config=None,check_ext=True):
 #
 # INTERNAL
 #
-def _load_setup(geometry,config,check_ext,noisy):
-    if noisy:
-        _section_header(f'GEOMETRY ({geometry})')
-        geometry=_load_geojson(geometry,check_ext=check_ext)
-        print('nb_features:',len(geometry['features']))
-        props=geometry['features'][0].get('properties')
-        if props:
-            print('properties:')
-            print()
-            pprint(props)
-        _section_header(f'EXPORT_CONFIG ({config or "default"})')
-        config=_load_config(config,check_ext=check_ext)
-        pprint(config)
+def _load_setup(geometry_filename,config,check_ext,noisy):
+
     return geometry, config
 
 
@@ -193,13 +197,4 @@ def _output_filename(geometry_filename,config):
     return fname
 
 
-def _section_header(name,first=False):
-    if first:
-        print('\n'*1)
-    else:
-        print('\n'*4)
-    print('-'*50)
-    print(f'{name.upper()}:')
-    print('-'*50)
-    print()
 
