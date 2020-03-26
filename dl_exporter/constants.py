@@ -12,7 +12,7 @@ EXPORT_CONFIG={
     'output_dir': 'out',
     'csv_file': True,
     'csv_dir': 'log',
-    'max_processes': 5,
+    'max_processes': 16,
     'tiling': {
         'tilesize': 2**10,
         'resolution': 10,

@@ -27,6 +27,7 @@ LIMIT=c.get('limit')
 CHECK_EXT=c.get('check_ext')
 EXPORT_CONFIG=c.get('export_config')
 CSV_COLS=['path','error','error_msg']
+MAX_PROCESSES=16
 #
 # MAIN
 #
