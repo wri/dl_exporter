@@ -98,7 +98,7 @@ tiling:
 
 ### RUN
 
-Running `$ dl_exporter run ...` will export files from DescartesLabs to GCS.  Additionally it can create two local files (config dependent)L
+Running `$ dl_exporter run ...` will export files from DescartesLabs to GCS.  Additionally it (optionally) creates two local files:
 
 * `output_file`: a pickled list of gcs files
 * `csv_file`: a csv containing tile_key, gcs_path, error_msg, etc...
