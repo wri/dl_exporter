@@ -11,13 +11,17 @@ import dl_exporter.config as c
 #
 # FILES
 #
+def ensure_dir(path):
+    Path(PurePath(path).parent).mkdir(
+            parents=True,
+            exist_ok=True)
+
+
 def save_pickle(obj,path,mkdirs=True):
     """ save object to pickle file
     """ 
     if mkdirs:
-        Path(PurePath(path).parent).mkdir(
-            parents=True,
-            exist_ok=True)
+        ensure_dir(path)
     with open(path,'wb') as file:
         pickle.dump(obj,file,protocol=pickle.HIGHEST_PROTOCOL)
 

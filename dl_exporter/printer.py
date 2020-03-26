@@ -1,12 +1,13 @@
 from datetime import datetime
 from pprint import pprint
+import dl_exporter.utils as utils
 #
 # CONSTANTS
 #
 TS_FMT="%b %d %Y %H:%M:%S"
 INLINE_TYPES=(str,float,int,list)
 LINE_LENGTH=75
-
+SEP=', '
 
 #
 # METHODS
@@ -21,13 +22,12 @@ def section(noisy,header,**data):
 
 
 def csv_header(filename,*columns):
-    print(columns)
-    pass
+    utils.ensure_dir(filename)
+    _write_line(filename,_line(columns),overwrite=True)
 
 
 def csv_row(filename,*values):
-    print(values)
-    pass
+    _write_line(filename,_line(values))
 
 
 def vspace(n=1):
@@ -67,5 +67,17 @@ def _timestamp():
     return datetime.now().strftime(TS_FMT)
 
 
+def _line(values):
+    values=[str(v) for v in values]
+    return SEP.join(values)
+
+
+def _write_line(path,line,overwrite=False,func=None,**kwargs):
+    if overwrite:
+        mode='w'
+    else:
+        mode='a'
+    with open(path,mode) as file:
+        file.write('{}\n'.format(line))
 
 
