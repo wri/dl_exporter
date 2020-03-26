@@ -5,6 +5,7 @@ CLI for exporting data from DescartesLabs to GCS. _TODO: add import to GEE funct
 ---
 
 <a name="install"/>
+
 ### INSTALL
 
 ```bash
@@ -17,6 +18,7 @@ popd
 ---
 
 <a name="setup"/>
+
 ### PROJECT SETUP
 
 The CLI requires a GeoJSON file, and a config file. The GeoJSON file should contain the geometry you want to export. I _think_ it needs to be a simple geometry (containing a single feature).
@@ -93,6 +95,7 @@ tiling:
 ---
 
 <a name="run"/>
+
 ### RUN
 
 Running `$ dl_exporter run ...` will export files from DescartesLabs to GCS.  Additionally it can create two local files (config dependent)L
