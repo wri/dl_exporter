@@ -26,7 +26,7 @@ NOISY=c.get('noisy')
 LIMIT=c.get('limit')
 CHECK_EXT=c.get('check_ext')
 EXPORT_CONFIG=c.get('export_config')
-CSV_COLS=['path','error','error_msg']
+CSV_COLS=['tile_key','empty','path','error','error_msg']
 MAX_PROCESSES=16
 #
 # MAIN
@@ -71,7 +71,7 @@ def run(geometry,config=None,dev=IS_DEV,noisy=NOISY,limit=LIMIT,check_ext=CHECK_
     # export
     def _export(tile):
         try:
-            dest=_export_tile(tile,config['search'],config['output'],dev,noisy)
+            dest, empty=_export_tile(tile,config['search'],config['output'],dev,noisy)
             error=False
             error_msg=None
         except Exception as e:
@@ -79,17 +79,22 @@ def run(geometry,config=None,dev=IS_DEV,noisy=NOISY,limit=LIMIT,check_ext=CHECK_
             dest=f'error://{dest}'
             error=True
             error_msg=str(e)
-        if csv: printer.csv_row(csv,dest,error,error_msg)
+            empty=None
+        if csv: printer.csv_row(csv,tile.key,empty,dest,error,error_msg)
         return dest
     out=mproc.map_with_threadpool(
         _export,
         tiles,
         max_processes=config.get('max_processes',8))
     out=[o for o in out if o]
+    if dev:
+        nb_transfered=f'(dev) {len(out)}'
+    else:
+        nb_transfered=len(out)
     printer.section(
         noisy,        
         'export complete',
-        nb_transfered=len(out))
+        nb_transfered=nb_transfered)
     # close
     if out:
         output_file=_output_filename(geometry_filename,config)
@@ -108,8 +113,20 @@ def run(geometry,config=None,dev=IS_DEV,noisy=NOISY,limit=LIMIT,check_ext=CHECK_
 
 
 def echo(geometry,config=None,check_ext=True):
-    _load_setup(geometry,config,check_ext,True)
-
+    geometry_filename=geometry
+    geometry=_load_geojson(geometry_filename,check_ext=check_ext)
+    config=_load_config(config,check_ext=check_ext)
+    printer.section(
+            True,
+            'config',
+            export_config=config)
+    printer.section(
+            True,
+            'geometry',
+            geometry=geometry_filename,
+            nb_features=len(geometry['features']),
+            properties=geometry.get('properties'),
+            feat_properties=geometry['features'][0].get('properties'))
 
 
 
@@ -142,11 +159,9 @@ def _load_config(config,check_ext):
 
 def _export_tile(tile,search_params,output_params,dev,noisy):
     scs,_=dl.scenes.search(tile,**search_params)
+    filename, bucket, folder, dest=_export_args(tile.key,output_params)
     if scs:
-        filename, bucket, folder, dest=_export_args(tile.key,output_params)
-        if dev:
-            return dest
-        else:
+        if not dev:
             im=scs.mosaic(output_params['bands'],tile)       
             tmp_name=f'{secrets.token_urlsafe(16)}.tif'
             dest=gcs_utils.image_to_gcs(
@@ -158,7 +173,9 @@ def _export_tile(tile,search_params,output_params,dev,noisy):
                 folder=folder,
                 return_path=True)
             os.remove(tmp_name)
-            return dest
+        return dest, False
+    else:
+        return None, True
 
 
 def _export_args(tile_key,config):

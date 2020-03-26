@@ -68,8 +68,14 @@ def _timestamp():
 
 
 def _line(values):
-    values=[str(v) for v in values]
+    values=[_safe_value(v) for v in values]
     return SEP.join(values)
+
+
+def _safe_value(value):
+    if value is None:
+        value=''
+    return str(value)
 
 
 def _write_line(path,line,overwrite=False,func=None,**kwargs):

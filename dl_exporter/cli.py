@@ -13,6 +13,9 @@ NOISY=c.get('noisy')
 LIMIT=c.get('limit')
 CHECK_EXT=c.get('check_ext')
 
+RUN_HELP='run export: `$dl_exporter run <geojson-file> (<config-file>)`'
+ECHO_HELP='print config: `$dl_exporter echo <geojson-file> (<config-file>)`'
+CONFIG_HELP='generate config file: pass kwargs (ie $`dl_exporter config dev=true noisy=false)`'
 DEV_HELP='<bool> run without performing export'
 NOISE_HELP='<bool> be noisy'
 LIMIT_HELP='<int> limit number of exports'
@@ -35,7 +38,7 @@ def cli(ctx):
 
 
 @click.command(
-    help='run exoprt: `$dl_exporter run <export-job-config>`',
+    help=RUN_HELP,
     context_settings=ARG_KWARGS_SETTINGS ) 
 @click.argument('geometry',type=str)
 @click.argument('config',type=str,required=False)
@@ -73,7 +76,7 @@ def run(ctx,geometry,config,dev,noisy,limit,check_ext):
 
 
 @click.command(
-    help='print job: `$dl_exporter echo <export-job-config>`',
+    help=ECHO_HELP,
     context_settings=ARG_KWARGS_SETTINGS ) 
 @click.argument('geometry',type=str)
 @click.argument('config',type=str,required=False)
@@ -94,7 +97,7 @@ def echo(ctx,geometry,config,check_ext):
 
 @click.command(
     name='config',    
-    help='generate config file: pass kwargs (ie $`dl_exporter config dev=true noisy=false)`',
+    help=CONFIG_HELP,
     context_settings=ARG_KWARGS_SETTINGS ) 
 @click.option(
     '--info',
