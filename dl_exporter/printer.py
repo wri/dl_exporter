@@ -1,3 +1,4 @@
+import re
 from datetime import datetime
 from pprint import pprint
 import dl_exporter.utils as utils
@@ -7,7 +8,7 @@ import dl_exporter.utils as utils
 TS_FMT="%b %d %Y %H:%M:%S"
 INLINE_TYPES=(str,float,int,list)
 LINE_LENGTH=75
-SEP=', '
+SEP=','
 
 #
 # METHODS
@@ -75,7 +76,8 @@ def _line(values):
 def _safe_value(value):
     if value is None:
         value=''
-    return str(value)
+    value=re.sub(',','--',str(value))
+    return value.strip()
 
 
 def _write_line(path,line,overwrite=False,func=None,**kwargs):

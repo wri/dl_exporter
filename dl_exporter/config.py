@@ -15,7 +15,8 @@ _DEFAULTS={
     'noisy': c.NOISY,
     'limit': c.LIMIT,
     'check_ext': c.CHECK_EXT,
-    'export_config': c.EXPORT_CONFIG
+    'export_config': c.EXPORT_CONFIG,
+    'remove_downloads': c.REMOVE_DOWNLOADS
 }
 _RASIE='_RAISE'
 
@@ -23,7 +24,6 @@ _RASIE='_RAISE'
 # LOAD CONFIG
 #
 CONFIG=deepcopy(_DEFAULTS)
-print(c.DL_EXPORTER_CONFIG_PATH)
 if os.path.exists(c.DL_EXPORTER_CONFIG_PATH):
     CONFIG.update(yaml.safe_load(open(c.DL_EXPORTER_CONFIG_PATH)))
 
@@ -43,6 +43,7 @@ def generate(
         limit=c.LIMIT,
         check_ext=c.CHECK_EXT,
         export_config=c.EXPORT_CONFIG,
+        remove_downloads=c.REMOVE_DOWNLOADS,
         force=False):
     """ generate config file
     """
@@ -51,7 +52,8 @@ def generate(
         'noisy': _truthy(noisy),
         'limit': limit,
         'check_ext': _truthy(check_ext),
-        'export_config': export_config
+        'export_config': export_config,
+        'remove_downloads': remove_downloads
     }
     if not force and os.path.exists(c.DL_EXPORTER_CONFIG_PATH):
         _log(c.DL_EXPORTER_CONFIG_EXISTS,True,level="ERROR")

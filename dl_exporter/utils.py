@@ -11,8 +11,10 @@ import dl_exporter.config as c
 #
 # FILES
 #
-def ensure_dir(path):
-    Path(PurePath(path).parent).mkdir(
+def ensure_dir(path=None,directory=None):
+    if path:
+        directory=PurePath(path).parent
+    Path(directory).mkdir(
             parents=True,
             exist_ok=True)
 

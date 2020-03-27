@@ -26,24 +26,26 @@ NOISY=c.get('noisy')
 LIMIT=c.get('limit')
 CHECK_EXT=c.get('check_ext')
 EXPORT_CONFIG=c.get('export_config')
-CSV_COLS=['tile_key','empty','path','error','error_msg']
+REMOVE_DOWNLOADS=c.get('remove_downloads')
+CSV_COLS=['tile_key','tile_empty','path','error','error_msg']
+TMP_DIR='tmp'
 MAX_PROCESSES=16
 #
 # MAIN
 #
 def run(geometry,config=None,dev=IS_DEV,noisy=NOISY,limit=LIMIT,check_ext=CHECK_EXT):
-    # setup
-    geometry_filename=geometry
+    # setup/config
     timer=utils.Timer()
     timer.start()
+    if not dev:
+        utils.ensure_dir(directory=TMP_DIR)
+    geometry_filename=geometry
     printer.section(
         noisy,
         'export start',
         first=True,
         geometry=geometry_filename,
         config=config or 'default')
-    # run data
-    geometry=_load_geojson(geometry_filename,check_ext=check_ext)
     config=_load_config(config,check_ext=check_ext)
     csv=_csv_filename(geometry_filename,config)
     if csv: printer.csv_header(csv,*CSV_COLS)
@@ -51,15 +53,23 @@ def run(geometry,config=None,dev=IS_DEV,noisy=NOISY,limit=LIMIT,check_ext=CHECK_
             noisy,
             'config',
             export_config=config)
-    printer.section(
-            noisy,
-            'geometry',
-            geometry=geometry_filename,
-            nb_features=len(geometry['features']),
-            properties=geometry.get('properties'),
-            feat_properties=geometry['features'][0].get('properties'))
     # dl-tiles
-    tiles=DLTile.from_shape(geometry,**config['tiling'])
+    geometry, tiles=_load_geometry_and_tiles(geometry_filename,config['tiling'],check_ext=check_ext)
+    tile_keys=geometry.get('tile_keys')
+    if tile_keys:
+        printer.section(
+                noisy,
+                'tile_keys',
+                filename=geometry_filename,
+                nb_keys=len(tile_keys))
+    else:
+        printer.section(
+                noisy,
+                'geometry',
+                geometry=geometry_filename,
+                nb_features=len(geometry.get('features')),
+                properties=geometry.get('properties'),
+                feat_properties=geometry['features'][0].get('properties'))
     printer.section(
         noisy,
         'tiles',
@@ -114,8 +124,8 @@ def run(geometry,config=None,dev=IS_DEV,noisy=NOISY,limit=LIMIT,check_ext=CHECK_
 
 def echo(geometry,config=None,check_ext=True):
     geometry_filename=geometry
-    geometry=_load_geojson(geometry_filename,check_ext=check_ext)
     config=_load_config(config,check_ext=check_ext)
+    geometry, tiles=_load_geometry_and_tiles(geometry_filename,False,check_ext=check_ext)
     printer.section(
             True,
             'config',
@@ -134,9 +144,18 @@ def echo(geometry,config=None,check_ext=True):
 #
 # INTERNAL
 #
-def _load_setup(geometry_filename,config,check_ext,noisy):
-
-    return geometry, config
+def _load_geometry_and_tiles(geometry,tiling_config,check_ext):
+    if re.search('.p$',geometry):
+        tile_keys=utils.read_pickle(geometry)
+        tiles=[DLTile.from_key(k) for k in tile_keys]
+        geometry={'tile_keys': tile_keys}
+    else:
+        geometry=_load_geojson(geometry,check_ext)
+        if tiling_config:
+            tiles=DLTile.from_shape(geometry,**tiling_config)
+        else:
+            tiles=False
+    return geometry, tiles
 
 
 def _load_geojson(geometry,check_ext):
@@ -163,7 +182,8 @@ def _export_tile(tile,search_params,output_params,dev,noisy):
     if scs:
         if not dev:
             im=scs.mosaic(output_params['bands'],tile)       
-            tmp_name=f'{secrets.token_urlsafe(16)}.tif'
+            tmp_name=f'{TMP_DIR}/{dest}'
+            utils.ensure_dir(tmp_name)
             dest=gcs_utils.image_to_gcs(
                 im,
                 dest=filename,
@@ -172,7 +192,8 @@ def _export_tile(tile,search_params,output_params,dev,noisy):
                 bucket=bucket,
                 folder=folder,
                 return_path=True)
-            os.remove(tmp_name)
+            if REMOVE_DOWNLOADS:
+                os.remove(tmp_name)
         return dest, False
     else:
         return None, True
