@@ -13,8 +13,8 @@ NOISY=c.get('noisy')
 LIMIT=c.get('limit')
 CHECK_EXT=c.get('check_ext')
 
-RUN_HELP='run export: `$dl_exporter run <geojson-file> (<config-file>)`'
-ECHO_HELP='print config: `$dl_exporter echo <geojson-file> (<config-file>)`'
+RUN_HELP='run export: `$dl_exporter run <geojson-file/tiles-pickle> (<config-file>)`'
+ECHO_HELP='print config: `$dl_exporter echo <geojson-file/tiles-pickle> (<config-file>)`'
 CONFIG_HELP='generate config file: pass kwargs (ie $`dl_exporter config dev=true noisy=false)`'
 DEV_HELP='<bool> run without performing export'
 NOISE_HELP='<bool> be noisy'

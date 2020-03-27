@@ -21,7 +21,9 @@ popd
 
 ### PROJECT SETUP
 
-The CLI requires a GeoJSON file, and a config file. The GeoJSON file should contain the geometry you want to export. I _think_ it needs to be a simple geometry (containing a single feature).
+The CLI requires a _GeoJSON_ file or _pickled-tile-keys_, and a config file. 
+
+The GeoJSON file should contain the geometry you want to export. I _think_ it needs to be a simple geometry (containing a single feature). The _pickled-tile-keys_ file must have the ext '.p', this is how the CLI knows to treat it as a tile list rather than a geometry.
 
 There are two types of config files:
 
@@ -113,8 +115,8 @@ Options:
 
 Commands:
   config  generate config file: pass kwargs (ie $`dl_exporter config...
-  echo    print config: `$dl_exporter echo <geojson-file> (<config-file>)`
-  run     run export: `$dl_exporter run <geojson-file> (<config-file>)
+  echo    print config: `$dl_exporter echo <geojson-file/tile-pickle> (<config-file>)`
+  run     run export: `$dl_exporter run <geojson-file/tile-pickle> (<config-file>)
 ```
 
 ```bash
@@ -133,11 +135,15 @@ Options:
 
 ##### EXAMPLES
 
-_NOTE: file extensions ('geojson','yaml') are optional_
+NOTE: file extensions ('geojson','yaml') are optional. However if you have a _pickled-tile-keys_ file as the first argument you must include the '.p' ext.
+
 
 ```bash
-# check config
+# check config (including the .geojson ext)
  dl_exporter echo kerala_dev.geojson
+
+ # this works too!
+ dl_exporter echo kerala_dev
 
  # dev run (fetch tiles, but skip export)
 dl_exporter run india --dev true 
@@ -147,6 +153,9 @@ dl_exporter run india --dev false --limit 4
 
  # full run
 dl_exporter run india --dev false
+
+ # full run from tile-list rather than geometry
+dl_exporter run india_tile_keys.p --dev false
 
  # 2016 full run
 dl_exporter run india dl_exporter.2016.config.yaml --dev false
