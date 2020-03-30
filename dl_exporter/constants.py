@@ -21,6 +21,7 @@ EXPORT_CONFIG={
     },
     'search': {
         'products': [],
+        'limit': 150,
         'start_datetime': None,
         'end_datetime': None
     },

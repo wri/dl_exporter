@@ -78,8 +78,12 @@ def run(geometry,config=None,dev=IS_DEV,noisy=NOISY,limit=LIMIT,check_ext=CHECK_
         limit=limit)
     if limit:
         tiles=tiles[:limit]
+    nb_tiles=len(tiles)
+    itiles=[(i,t) for (i,t) in enumerate(tiles)]
     # export
-    def _export(tile):
+    def _export(itile):
+        i,tile=itile
+        update_progress(i,nb_tiles,tile.key)
         try:
             dest, empty=_export_tile(tile,config['search'],config['output'],dev,noisy)
             error=False
@@ -94,7 +98,7 @@ def run(geometry,config=None,dev=IS_DEV,noisy=NOISY,limit=LIMIT,check_ext=CHECK_
         return dest
     out=mproc.map_with_threadpool(
         _export,
-        tiles,
+        itiles,
         max_processes=config.get('max_processes',8))
     out=[o for o in out if o]
     if dev:
@@ -198,6 +202,10 @@ def _export_tile(tile,search_params,output_params,dev,noisy):
     else:
         return None, True
 
+
+def update_progress(i,nb_tiles,tile_key):
+    print(f'current processes ({i+1}/{nb_tiles}): {tile_key}',end='\r',flush=False)
+    
 
 def _export_args(tile_key,config):
     prefix=config.get('prefix')
