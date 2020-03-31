@@ -56,6 +56,7 @@ export_config:
     suffix: 2019
   search:
     products: ['wri:ulu-india']
+    limit: 200
     start_datetime: '2019-11-01'
     end_datetime: '2020-01-15'
   tiling:

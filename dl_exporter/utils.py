@@ -3,6 +3,9 @@ import os
 from pathlib import Path, PurePath
 import re
 import pickle
+import json
+import geojson
+import yaml
 from datetime import datetime
 import functools
 import operator
@@ -35,6 +38,60 @@ def read_pickle(path):
         obj=pickle.load(file)
     return obj
 
+
+def read_yaml(path,*key_path):
+    """ read yaml file
+    path<str>: path to yaml file
+    *key_path: keys to go to in object
+    """    
+    with open(path,'rb') as file:
+        obj=yaml.safe_load(file)
+    for k in key_path:
+        obj=obj[k]
+    return obj
+
+
+def read_json(path,*key_path):
+    """ read json file
+    path<str>: path to json file
+    *key_path: keys to go to in object
+    """    
+    with open(path,'rb') as file:
+        obj=json.load(f)
+    for k in key_path:
+        obj=obj[k]
+    return obj
+
+
+def save_json(obj,path,indent=4,sort_keys=False,mkdirs=True):
+    """ save object to json file
+    """ 
+    if mkdirs:
+        ensure_dir(path)
+    with open(path,'w') as file:
+        json.dump(obj,file,indent=indent,sort_keys=sort_keys)
+
+
+def read_geojson(path,*key_path):
+    """ read geojson file
+    path<str>: path to geojson file
+    *key_path: keys to go to in object
+    """    
+    with open(path,'rb') as file:
+        obj=geojson.load(f)
+    for k in key_path:
+        obj=obj[k]
+    return obj
+
+
+def read_lines(path,*key_path):
+    """ read yaml file
+    path<str>: path to yaml file
+    *key_path: keys to go to in object
+    """    
+    with open(path,'r') as file:
+        obj=[l for l in file]
+    return obj
 
 #
 # Timer

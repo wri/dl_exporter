@@ -5,6 +5,7 @@ import re
 import click
 import dl_exporter.exporter as exporter
 import dl_exporter.config as c
+import dl_exporter.gee as gee
 #
 # DEFAULTS
 #
@@ -15,16 +16,19 @@ CHECK_EXT=c.get('check_ext')
 
 RUN_HELP='run export: `$dl_exporter run <geojson-file/tiles-pickle> (<config-file>)`'
 ECHO_HELP='print config: `$dl_exporter echo <geojson-file/tiles-pickle> (<config-file>)`'
+MANIFEST_HELP='generate gee-manifest: `$dl_exporter manifiest <manifiest-config-file> <uris-file> <destination>`'
 CONFIG_HELP='generate config file: pass kwargs (ie $`dl_exporter config dev=true noisy=false)`'
 DEV_HELP='<bool> run without performing export'
 NOISE_HELP='<bool> be noisy'
 LIMIT_HELP='<int> limit number of exports'
+MANIFEST_LIMIT_HELP='<int> limit number of uris for dev'
 CHECK_EXT_HELP='<bool> if true add `.yaml` if not included in config arg'
 ARG_KWARGS_SETTINGS={
     'ignore_unknown_options': True,
     'allow_extra_args': True
 }
-
+PRETTY_HELP='<bool> if pretty indent json file'
+PRETTY=False
 
 
 
@@ -72,6 +76,39 @@ def run(ctx,geometry,config,dev,noisy,limit,check_ext):
         limit=limit,
         check_ext=check_ext)
 
+
+
+
+@click.command(
+    help=MANIFEST_HELP,
+    context_settings=ARG_KWARGS_SETTINGS ) 
+@click.argument('config',type=str)
+@click.argument('uris',type=str)
+@click.argument('dest',type=str)
+@click.option(
+    '--pretty',
+    help=PRETTY_HELP,
+    default=PRETTY,
+    type=bool)
+@click.option(
+    '--noisy',
+    help=NOISE_HELP,
+    default=NOISY,
+    type=bool)
+@click.option(
+    '--limit',
+    help=MANIFEST_LIMIT_HELP,
+    default=LIMIT,
+    type=int)
+@click.pass_context
+def manifest(ctx,config,uris,dest,pretty,noisy,limit):
+    gee.generate_manifest(
+        config=config,
+        uris=uris,
+        dest=dest,
+        pretty=pretty,
+        noisy=noisy,
+        limit=limit)
 
 
 
@@ -146,6 +183,7 @@ def _args_kwargs(ctx_args):
 #
 cli.add_command(run)
 cli.add_command(echo)
+cli.add_command(manifest)
 cli.add_command(generate_config)
 if __name__ == "__main__":
     cli()

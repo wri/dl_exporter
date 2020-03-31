@@ -2,8 +2,6 @@ from __future__ import print_function
 import os
 import re
 import secrets
-import geojson
-import yaml
 from pprint import pprint
 from copy import deepcopy
 from affine import Affine
@@ -165,8 +163,7 @@ def _load_geometry_and_tiles(geometry,tiling_config,check_ext):
 def _load_geojson(geometry,check_ext):
     if check_ext and (not re.search('.geojson$',geometry)):
         geometry=f'{geometry}.geojson'
-    with open(geometry) as file:
-        geometry=geojson.load(file)
+    geometry=utils.read_geojson(geometry)
     return geometry
 
 
@@ -174,7 +171,7 @@ def _load_config(config,check_ext):
     if config:
         if check_ext and (not re.search('.yaml$',config)):
             config=f'{config}.yaml'
-        config=yaml.safe_load(open(config))
+        config=utils.read_yaml(config)
     else:
         config=deepcopy(EXPORT_CONFIG)
     return config
