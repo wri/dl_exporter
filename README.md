@@ -1,6 +1,11 @@
 #### DL EXPORTER
 
-CLI for exporting data from DescartesLabs to GCS. _TODO: add import to GEE functionality_
+CLI for exporting data from DescartesLabs to GCS. Additionally `dl_exporter manifest ...` will generate a GEE Manifest to ingest your exports into Google Earth Engine.
+
+1. [Install](#install)
+2. [Project Setup](#setup)
+3. [Export Tiles](#run)
+4. [Google Earth Engine Imports](#gee)
 
 ---
 
@@ -99,7 +104,7 @@ tiling:
 
 <a name="run"/>
 
-### RUN
+### EXPORT TILES
 
 Running `$ dl_exporter run ...` will export files from DescartesLabs to GCS.  Additionally it (optionally) creates two local files:
 
@@ -162,5 +167,92 @@ dl_exporter run india_tile_keys.p --dev false
 dl_exporter run india dl_exporter.2016.config.yaml --dev false
 ```
 
+---
+
+<a name="gee"/>
+
+### GOOGLE EARTH ENGINE IMPORTS
+
+The GEE CLI allow you to import a list to tifs into a single mosaic `ee.Image` asset using `earthengine upload image --manifest <manifest-json-file>`.  A detailed description is given [here](https://developers.google.com/earth-engine/image_manifest).
+
+`dl_exporter manifest ...`  makes generating the manifest-json file easy. 
+
+This command requires 2 different setup files:
+
+1. manifest-config-file <yaml>: contains all the config except for the uris
+2. uris-file <pickled-list or line-sep-text-file>: list of uris
+
+This example usage should be somewhat self explanatory 
+
+```bash
+# generate gee-manifest 
+dl_exporter manifiest manifest_config.json gcs_uris.txt output_gee_manifest.json
+
+# upload-to-gee
+earthengine upload image --manifiest output_gee_manifest.json
+```
+
+Generating the uris-file can be done in many ways. One simple way is:
+
+```bash
+gsutil ls gs://bucket/path/to/folder/*.tif > gcs_uris.txt
+```
+
+The manifest-config file is simply a yaml version of the file described [here](https://developers.google.com/earth-engine/image_manifest#manifest_field_definitions). Here is an example:
+
+```yaml
+# example-config
+name: projects/wri-datalab/test_im1112
+tilesets:
+- data_type: UINT8
+bands:
+- id: lulc
+  tileset_band_index: 0
+  pyramidingPolicy: MODE
+- id: counts
+  tileset_band_index: 1
+  pyramidingPolicy: MODE
+- id: observations
+  tileset_band_index: 2
+  pyramidingPolicy: MODE
+missing_data:
+  values:
+  - 6
+pyramiding_policy: MODE
+start_time: '2019-11-01'
+end_time: '2020-01-15'
+properties:
+  'band_description': >-
+    lulc - urban land use category 
+    counts: - the number of observations with the predicted lulc category 
+    observations:  the total number of observations
+  '0': Open Space
+  '1': Non-Residential
+  '2': Residential Atomistic
+  '3': Residential Informal Subdivision
+  '4': Residential Formal Subdivision
+  '5': Residential Housing Project
+  '6': No Data
+```
 
 
+A couple notes:
+
+1. `name`:  `dl_exporter manifest` will automatically prepend the name with `projects/earthengine-legacy/assets` if it is not already included.
+2. `start/end_time`: you can pass 'yyyy-mm-dd' strings, or seconds-since-1970-ints (rather than the python-dict containing seconds) if you prefer.
+
+
+#####  MANIFEST CLI HELP
+
+```bash
+Usage: dl_exporter manifest [OPTIONS] CONFIG URIS DEST
+
+  generate gee-manifest: `$dl_exporter manifiest <manifiest-config-file>
+  <uris-file> <destination>`
+
+Options:
+  --pretty BOOLEAN  <bool> if pretty indent json file
+  --noisy BOOLEAN   <bool> be noisy
+  --limit INTEGER   <int> limit number of uris for dev
+  --help            Show this message and exit.
+```
