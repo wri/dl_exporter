@@ -176,9 +176,10 @@ dl_exporter run india dl_exporter.2016.config.yaml --dev false
 _TODO: UPDATE README TO SHOW HOW TO WORK ACROSS EPSG ZONES_
 
 1. _create image collection_
-2. _generate multi-uri file -- give nb example_
-3. _generate manifest for image per tileset_
-4. _upload all images_
+2. _[generate multi-epsg-tilesets.json](https://github.com/wri/dl_exporter/blob/master/nb_archive/GenerateTilesetsJSON.ipynb) file
+3. _use multi-epsg-tilesets.json to generate manifests for each epsg-specific-tileset_
+4. _run `earthengine upload` for each manifest file_
+
 
 The GEE CLI allow you to import a list to tifs into a single mosaic `ee.Image` asset using `earthengine upload image --manifest <manifest-json-file>`.  A detailed description is given [here](https://developers.google.com/earth-engine/image_manifest).
 
