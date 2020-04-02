@@ -173,6 +173,13 @@ dl_exporter run india dl_exporter.2016.config.yaml --dev false
 
 ### GOOGLE EARTH ENGINE IMPORTS
 
+_TODO: UPDATE README TO SHOW HOW TO WORK ACROSS EPSG ZONES_
+
+1. _create image collection_
+2. _generate multi-uri file -- give nb example_
+3. _generate manifest for image per tileset_
+4. _upload all images_
+
 The GEE CLI allow you to import a list to tifs into a single mosaic `ee.Image` asset using `earthengine upload image --manifest <manifest-json-file>`.  A detailed description is given [here](https://developers.google.com/earth-engine/image_manifest).
 
 `dl_exporter manifest ...`  makes generating the manifest-json file easy. 
