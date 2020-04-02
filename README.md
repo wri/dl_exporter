@@ -176,7 +176,7 @@ dl_exporter run india dl_exporter.2016.config.yaml --dev false
 _TODO: UPDATE README TO SHOW HOW TO WORK ACROSS EPSG ZONES_
 
 1. _create image collection_
-2. _[generate multi-epsg-tilesets.json](https://github.com/wri/dl_exporter/blob/master/nb_archive/GenerateTilesetsJSON.ipynb) file
+2. [generate](https://github.com/wri/dl_exporter/blob/master/nb_archive/GenerateTilesetsJSON.ipynb) _multi-epsg-tilesets.json file_
 3. _use multi-epsg-tilesets.json to generate manifests for each epsg-specific-tileset_
 4. _run `earthengine upload` for each manifest file_
 
