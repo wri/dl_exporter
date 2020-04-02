@@ -236,7 +236,7 @@ properties:
 ```
 
 
-A couple notes:
+A few notes:
 
 1. `name`:  `dl_exporter manifest` will automatically prepend the name with `projects/earthengine-legacy/assets` if it is not already included.
 2. `start/end_time`: you can pass 'yyyy-mm-dd' strings, or seconds-since-1970-ints (rather than the python-dict containing seconds) if you prefer.

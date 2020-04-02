@@ -57,7 +57,7 @@ def read_json(path,*key_path):
     *key_path: keys to go to in object
     """    
     with open(path,'rb') as file:
-        obj=json.load(f)
+        obj=json.load(file)
     for k in key_path:
         obj=obj[k]
     return obj
@@ -78,7 +78,7 @@ def read_geojson(path,*key_path):
     *key_path: keys to go to in object
     """    
     with open(path,'rb') as file:
-        obj=geojson.load(f)
+        obj=geojson.load(file)
     for k in key_path:
         obj=obj[k]
     return obj

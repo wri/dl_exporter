@@ -20,6 +20,8 @@ def generate_manifest(config,uris,dest,pretty=False,noisy=True,limit=None):
     config=utils.read_yaml(config)
     if re.search('.p$',uris):
         uris=utils.read_pickle(uris)
+    elif re.search('.json$',uris):
+        uris=utils.read_json(uris)
     else:
         uris=utils.read_lines(uris)
     uris=uris[:limit]
@@ -29,23 +31,32 @@ def generate_manifest(config,uris,dest,pretty=False,noisy=True,limit=None):
         nb_uris=len(uris),
         first_uri=uris[0],
         config=config)
-    uris=[_uri_obj(u) for u in uris]
-    config['name']=_prefixed_name(config['name'])
-    config['tilesets'][0]['sources']=[u for u in uris if u]
+    name=_prefixed_name(config['name'])
     config['start_time']=_timestamp_obj(config.get('start_time'))
     config['end_time']=_timestamp_obj(config.get('end_time'))
     if pretty:
         indent=4
     else:
         indent=None
-    utils.save_json(config,dest,indent=indent)
+    if isinstance(uris[0],str):
+        uris=[_uri_obj(u) for u in uris]
+        config['name']=name
+        config['tilesets'][0]['sources']=[u for u in uris if u]
+        utils.save_json(config,dest,indent=indent)
+    else:
+        for i,u in enumerate(uris):
+            _id=u.get('id',False)
+            config['tilesets'][0]=u
+            config['bands']=_bands(_id,config['bands'])
+            config['name']=f'{name}-{_id or i}'
+            utils.save_json(config,f'{dest}-{i}',indent=indent)
 
 
 def _prefixed_name(name):
     if not re.search(ASSET_PREFIX,name):
         name=f'{ASSET_PREFIX}/{name}'
     return name
-    
+
 
 def _uri_obj(uri):
     uri=re.sub(r'[\n\r ]$','',uri)
@@ -74,5 +85,20 @@ def _to_datetime(date):
 def _to_timestamp(date):
     date=_to_datetime(date)
     return int((date - datetime.utcfromtimestamp(0)).total_seconds())
+
+
+def _bands(tileset_id,bands):
+    if tileset_id:
+        bnds=[]
+        for b in bands:
+            _b=b.copy()
+            _b['tileset_id']=tileset_id
+            bnds.append(_b)
+        bands=bnds
+    return bands
+
+
+
+
 
 
